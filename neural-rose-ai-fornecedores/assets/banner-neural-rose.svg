@@ -1,0 +1,22 @@
+<svg width="1400" height="420" viewBox="0 0 1400 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="420" rx="28" fill="#070D18"/>
+  <rect x="1" y="1" width="1398" height="418" rx="27" stroke="#1A2B42" stroke-width="2"/>
+  <circle cx="1140" cy="80" r="210" fill="#FF3D7F" fill-opacity="0.10"/>
+  <circle cx="290" cy="335" r="190" fill="#A06BFF" fill-opacity="0.12"/>
+  <circle cx="1040" cy="300" r="160" fill="#4F9DFF" fill-opacity="0.10"/>
+  <path d="M1048 125C1123 125 1184 186 1184 261C1184 336 1123 397 1048 397C973 397 912 336 912 261C912 186 973 125 1048 125Z" stroke="#FF3D7F" stroke-opacity="0.45" stroke-width="3"/>
+  <path d="M1048 161C1103 161 1148 206 1148 261C1148 316 1103 361 1048 361C993 361 948 316 948 261C948 206 993 161 1048 161Z" stroke="#A06BFF" stroke-opacity="0.45" stroke-width="2"/>
+  <path d="M1048 198C1083 198 1111 226 1111 261C1111 296 1083 324 1048 324C1013 324 985 296 985 261C985 226 1013 198 1048 198Z" stroke="#2ED9B8" stroke-opacity="0.45" stroke-width="2"/>
+  <path d="M1048 224C1068 224 1085 241 1085 261C1085 281 1068 298 1048 298C1028 298 1011 281 1011 261C1011 241 1028 224 1048 224Z" fill="#FF3D7F" fill-opacity="0.28"/>
+  <path d="M1048 120V400M908 261H1188M950 163L1146 359M1146 163L950 359" stroke="#4F9DFF" stroke-opacity="0.18" stroke-width="2"/>
+  <text x="82" y="132" fill="#FF3D7F" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="5">NEURAL ROSE</text>
+  <text x="82" y="198" fill="#E2EAF8" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800">IA Preditiva para</text>
+  <text x="82" y="266" fill="#E2EAF8" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800">Análise de Fornecedores</text>
+  <text x="82" y="321" fill="#8897B5" font-family="Arial, Helvetica, sans-serif" font-size="24">🏆 2º lugar no Hackathon WeHandle x PUC Campinas 2026</text>
+  <rect x="82" y="350" width="195" height="40" rx="20" fill="#FF3D7F" fill-opacity="0.18" stroke="#FF3D7F" stroke-opacity="0.40"/>
+  <text x="108" y="376" fill="#FF3D7F" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">Predictive AI</text>
+  <rect x="294" y="350" width="185" height="40" rx="20" fill="#4F9DFF" fill-opacity="0.14" stroke="#4F9DFF" stroke-opacity="0.35"/>
+  <text x="323" y="376" fill="#4F9DFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">Risk Analysis</text>
+  <rect x="496" y="350" width="150" height="40" rx="20" fill="#2ED9B8" fill-opacity="0.12" stroke="#2ED9B8" stroke-opacity="0.35"/>
+  <text x="527" y="376" fill="#2ED9B8" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">Dashboard</text>
+</svg>

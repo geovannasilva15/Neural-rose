@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Neural Rose — Inteligência Preditiva de Fornecedores</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--pk:#FF3D7F;--pk2:rgba(255,61,127,.14);--bl:#4F9DFF;--tl:#2ED9B8;--pu:#A06BFF;--am:#FFB23D;--bg:#070D18;--p1:#0C1525;--p2:#101D2E;--bd:#1A2B42;--tx:#E2EAF8;--dm:#8897B5;--ft:#4B5E7A;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden;display:flex;}
+.gd{font-family:'Space Grotesk',sans-serif;}
+.mn{font-family:'JetBrains Mono',monospace;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:#1A2B42;border-radius:99px;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.pulse{animation:pulse 1.8s ease-in-out infinite;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadein .35s ease forwards;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.shimmer{background:linear-gradient(90deg,var(--p1) 25%,#16243A 50%,var(--p1) 75%);background-size:200%;animation:shimmer 1.4s infinite;border-radius:8px;}
+input[type=range]{-webkit-appearance:none;height:4px;border-radius:99px;background:#1A2B42;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--pk);box-shadow:0 0 8px rgba(255,61,127,.5);}
+.card{background:var(--p1);border:1px solid var(--bd);border-radius:14px;}
+.nav-i{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ft);transition:all .18s;}
+.nav-i:hover{background:#0E1C2F;color:var(--dm);}
+.nav-i.act{background:var(--pk2);color:var(--pk);}
+.tab-b{cursor:pointer;padding:9px 16px;font-size:13px;font-weight:600;color:var(--ft);border-bottom:2px solid transparent;white-space:nowrap;transition:all .18s;}
+.tab-b:hover{color:var(--dm);}
+.tab-b.act{color:var(--pk);border-bottom-color:var(--pk);}
+.cnpj-in{background:#050B14;border:1.5px solid var(--bd);border-radius:12px;color:var(--tx);font-size:18px;font-family:'JetBrains Mono',monospace;padding:14px 18px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s;letter-spacing:.06em;}
+.cnpj-in:focus{border-color:var(--pk);box-shadow:0 0 0 3px rgba(255,61,127,.14);}
+.btn-pk{background:var(--pk);border:none;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;padding:13px 24px;border-radius:11px;cursor:pointer;transition:opacity .18s,transform .1s;}
+.btn-pk:hover{opacity:.88;}
+.btn-pk:active{transform:scale(.97);}
+.btn-gh{background:var(--p2);border:1px solid var(--bd);color:var(--dm);font-size:13px;font-weight:600;padding:13px 18px;border-radius:11px;cursor:pointer;transition:border-color .2s;}
+.btn-gh:hover{border-color:var(--dm);}
+.bk-c{background:rgba(255,77,94,.12);color:#FF4D5E;border:1px solid rgba(255,77,94,.28);}
+.bk-a{background:rgba(255,140,66,.12);color:#FF8C42;border:1px solid rgba(255,140,66,.28);}
+.bk-m{background:rgba(255,178,61,.12);color:#FFB23D;border:1px solid rgba(255,178,61,.28);}
+.bk-b{background:rgba(46,217,184,.12);color:#2ED9B8;border:1px solid rgba(46,217,184,.28);}
+.bk-i{background:rgba(79,157,255,.12);color:#4F9DFF;border:1px solid rgba(79,157,255,.28);}
+.badge{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;padding:2px 9px;border-radius:99px;letter-spacing:.03em;}
+.page{display:none;height:100%;overflow-y:auto;padding:22px 26px;}
+.page.act{display:block;}
+@keyframes logfade{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+.logln{animation:logfade .25s ease forwards;}
+.chat-msg{animation:fadein .3s ease forwards;}
+.tog-wrap{position:relative;display:inline-block;width:38px;height:20px;flex-shrink:0;}
+.tog-wrap input{opacity:0;width:0;height:0;}
+.tog-sl{position:absolute;inset:0;background:#1A2B42;border-radius:99px;cursor:pointer;transition:.25s;}
+.tog-sl:before{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#4B5E7A;transition:.25s;}
+.tog-wrap input:checked+.tog-sl{background:var(--pk);}
+.tog-wrap input:checked+.tog-sl:before{transform:translateX(18px);background:#fff;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside style="width:210px;flex-shrink:0;background:var(--p1);border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:18px 10px;gap:3px;">
+  <div style="padding:6px 8px 18px;border-bottom:1px solid var(--bd);margin-bottom:8px;">
+    <div class="gd" style="font-size:18px;font-weight:700;letter-spacing:-.02em;">NEURAL <span style="color:var(--pk)">ROSE</span></div>
+    <div class="mn" style="font-size:9px;color:var(--ft);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;">Predictive Supplier Intelligence</div>
+  </div>
+  <div class="nav-i act" data-p="dashboard" onclick="goPage('dashboard')">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2"/></svg>Dashboard
+  </div>
+  <div class="nav-i" data-p="analyze" onclick="goPage('analyze')">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l3.5 3.5"/></svg>Analisar CNPJ
+  </div>
+  <div class="nav-i" data-p="whatif" onclick="goPage('whatif')">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 7.5h2l2-4.5 2 9 2-6 1.5 3H14"/></svg>Simulador What-If
+  </div>
+  <div class="nav-i" data-p="ranking" onclick="goPage('ranking')">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 13V9m3.5 4V5m3.5 8V3m3.5 10V1"/></svg>Ranking
+  </div>
+  <div class="nav-i" data-p="alerts" onclick="goPage('alerts')">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7.5 1.5A4.5 4.5 0 003 6c0 2.5-1 3.5-1 4.5h11c0-1-1-2-1-4.5a4.5 4.5 0 00-4.5-4.5zM6 12a1.5 1.5 0 003 0"/></svg>Alertas
+    <span id="navAlertCt" style="margin-left:auto;background:var(--pk);color:#fff;font-size:10px;padding:1px 7px;border-radius:99px;" class="mn">10</span>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="background:rgba(46,217,184,.07);border:1px solid rgba(46,217,184,.18);border-radius:10px;padding:10px 11px;">
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">
+      <div class="pulse" style="width:6px;height:6px;border-radius:50%;background:#2ED9B8;"></div>
+      <span class="mn" style="font-size:10px;color:#2ED9B8;font-weight:700;">IA ATIVA</span>
+    </div>
+    <div style="font-size:11px;color:var(--ft);">Monitorando <b style="color:var(--dm)">40.847</b> fornecedores</div>
+    <div style="font-size:11px;color:var(--ft);margin-top:2px;">Última varredura: <b style="color:var(--dm)">agora</b></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+  <!-- TOPBAR -->
+  <div style="background:var(--p1);border-bottom:1px solid var(--bd);height:52px;flex-shrink:0;display:flex;align-items:center;padding:0 24px;gap:14px;">
+    <div id="topTitle" class="gd" style="font-size:15px;font-weight:700;color:var(--dm);">Dashboard</div>
+    <div style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;background:#050B14;border:1px solid var(--bd);border-radius:7px;padding:5px 11px;">
+      <div class="pulse" style="width:5px;height:5px;border-radius:50%;background:#2ED9B8;"></div>
+      <span class="mn" style="font-size:10px;color:var(--ft);">BrasilAPI</span>
+      <span class="mn" style="font-size:10px;color:#2ED9B8;">ONLINE</span>
+    </div>
+    <div style="background:rgba(255,61,127,.18);border:1px solid rgba(255,61,127,.3);border-radius:7px;padding:5px 11px;font-size:11px;color:var(--pk);font-weight:600;">wehandle × PUC-Campinas 2026</div>
+    <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--pk),var(--pu));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">NR</div>
+  </div>
+
+  <!-- PAGES CONTAINER -->
+  <div style="flex:1;overflow:hidden;position:relative;">
+
+<!-- ═══════════════════════════════════════
+     PAGE: DASHBOARD
+═══════════════════════════════════════ -->
+<div id="page-dashboard" class="page act">
+  <!-- KPIs -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;">
+    <div class="card" style="padding:16px 18px;">
+      <div class="mn" style="font-size:9.5px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;">Fornecedores Ativos</div>
+      <div class="gd" style="font-size:28px;font-weight:700;">40.847</div>
+      <div style="font-size:11px;color:#2ED9B8;margin-top:3px;">▲ 1.243 este mês</div>
+    </div>
+    <div class="card" style="padding:16px 18px;">
+      <div class="mn" style="font-size:9.5px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;">Score Médio da Base</div>
+      <div class="gd" style="font-size:28px;font-weight:700;color:#FFB23D;">71.4</div>
+      <div style="font-size:11px;color:#FF8C42;margin-top:3px;">▼ 2.1 vs mês anterior</div>
+    </div>
+    <div class="card" style="padding:16px 18px;">
+      <div class="mn" style="font-size:9.5px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;">Alertas Críticos</div>
+      <div class="gd" style="font-size:28px;font-weight:700;color:#FF4D5E;">7</div>
+      <div style="font-size:11px;color:#FF4D5E;margin-top:3px;">▲ 3 novos hoje</div>
+    </div>
+    <div class="card" style="padding:16px 18px;">
+      <div class="mn" style="font-size:9.5px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;">Em Risco Preditivo</div>
+      <div class="gd" style="font-size:28px;font-weight:700;color:#A06BFF;">23</div>
+      <div style="font-size:11px;color:#A06BFF;margin-top:3px;">Score futuro &lt; 60</div>
+    </div>
+  </div>
+
+  <!-- Executive Briefing + Donut -->
+  <div style="display:grid;grid-template-columns:1fr 310px;gap:14px;margin-bottom:18px;">
+    <div class="card" style="padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div class="gd" style="font-size:13.5px;font-weight:700;">Executive Briefing — Clientes wehandle</div>
+          <div style="font-size:11.5px;color:var(--ft);margin-top:2px;">Score Atual vs Previsão IA · Decisão automatizada</div>
+        </div>
+        <button class="btn-pk" onclick="goPage('analyze')" style="font-size:12px;padding:8px 14px;">+ Novo CNPJ</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+        <thead><tr style="border-bottom:1px solid var(--bd);">
+          <th style="text-align:left;padding:7px 8px;color:var(--ft);font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Fornecedor</th>
+          <th style="text-align:center;padding:7px 8px;color:var(--ft);font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Score Atual</th>
+          <th style="text-align:center;padding:7px 8px;color:var(--ft);font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Score Futuro IA</th>
+          <th style="text-align:center;padding:7px 8px;color:var(--ft);font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">CCI</th>
+          <th style="text-align:left;padding:7px 8px;color:var(--ft);font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Decisão IA</th>
+        </tr></thead>
+        <tbody id="dashTable"></tbody>
+      </table>
+    </div>
+    <div class="card" style="padding:18px;">
+      <div class="gd" style="font-size:13px;font-weight:700;margin-bottom:3px;">Distribuição por Risco</div>
+      <div style="font-size:11px;color:var(--ft);margin-bottom:14px;">Base atual · 40.847 fornecedores</div>
+      <div style="position:relative;width:160px;height:160px;margin:0 auto 14px;">
+        <canvas id="distChart" width="160" height="160"></canvas>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+          <div class="gd" style="font-size:22px;font-weight:700;">40.8k</div>
+          <div style="font-size:10px;color:var(--ft);">fornecedores</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;"><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;background:#2ED9B8;border-radius:3px;display:inline-block;"></span>Baixo Risco</span><span class="mn" style="color:#2ED9B8;font-weight:700;">19.215 (47%)</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;"><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;background:#FFB23D;border-radius:3px;display:inline-block;"></span>Médio</span><span class="mn" style="color:#FFB23D;font-weight:700;">14.706 (36%)</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;"><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;background:#FF8C42;border-radius:3px;display:inline-block;"></span>Alto</span><span class="mn" style="color:#FF8C42;font-weight:700;">6.535 (16%)</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;"><span style="display:flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;background:#FF4D5E;border-radius:3px;display:inline-block;"></span>Crítico</span><span class="mn" style="color:#FF4D5E;font-weight:700;">391 (1%)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trend chart -->
+  <div class="card" style="padding:18px 20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div>
+        <div class="gd" style="font-size:13px;font-weight:700;">Evolução do Score Médio — 12 Meses</div>
+        <div style="font-size:11px;color:var(--ft);margin-top:2px;">Score Atual vs Projeção Neural Rose Future Engine</div>
+      </div>
+      <span class="badge bk-a">Tendência: DEGRADAÇÃO ▼</span>
+    </div>
+    <div style="height:150px;"><canvas id="dashTrendChart"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: ANALYZE
+═══════════════════════════════════════ -->
+<div id="page-analyze" class="page">
+  <!-- INPUT STATE -->
+  <div id="anaInput" style="max-width:580px;margin:32px auto 0;">
+    <div class="gd" style="font-size:22px;font-weight:700;margin-bottom:5px;">Analisar Fornecedor</div>
+    <div style="font-size:13px;color:var(--ft);margin-bottom:24px;">Consulta em tempo real via BrasilAPI + Receita Federal · Score por IA</div>
+    <input class="cnpj-in" id="cnpjIn" placeholder="00.000.000/0001-00" maxlength="18" oninput="maskCNPJ(this)" onkeydown="if(event.key==='Enter')doAnalyze()"/>
+    <div style="display:flex;gap:10px;margin-top:10px;">
+      <button class="btn-pk" onclick="doAnalyze()" style="flex:1;">⚡ Analisar com IA</button>
+      <button class="btn-gh" onclick="loadDemo('techsol')">Demo 1 — Risco</button>
+      <button class="btn-gh" onclick="loadDemo('embraer')">Demo 2 — Baixo</button>
+    </div>
+    <div style="margin-top:16px;padding:12px 14px;background:rgba(79,157,255,.06);border:1px solid rgba(79,157,255,.14);border-radius:10px;font-size:12px;color:#7BA8D4;">
+      <b style="color:var(--bl);">💡 CNPJs para testar:</b><br/>
+      <span class="mn">07.689.002/0001-89</span> — Embraer S.A. &nbsp;|&nbsp;
+      <span class="mn">11.222.333/0001-81</span> — Demo risco alto
+    </div>
+  </div>
+
+  <!-- PROCESSING STATE -->
+  <div id="anaProc" style="display:none;max-width:640px;margin:24px auto 0;">
+    <div class="card" style="border-color:rgba(255,61,127,.3);padding:22px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div class="pulse" style="width:9px;height:9px;border-radius:50%;background:var(--pk);"></div>
+        <div class="gd" style="font-size:15px;font-weight:700;">Agentes IA processando...</div>
+        <span id="procCnpjLabel" class="mn" style="font-size:11px;color:var(--ft);margin-left:auto;"></span>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ft);margin-bottom:5px;">
+          <span id="procStep">Iniciando...</span><span id="procPct" class="mn">0%</span>
+        </div>
+        <div style="height:5px;background:#1A2B42;border-radius:99px;overflow:hidden;">
+          <div id="procBar" style="height:100%;background:linear-gradient(90deg,var(--pk),var(--pu));border-radius:99px;width:0%;transition:width .4s;"></div>
+        </div>
+      </div>
+      <div id="procLog" style="background:#040A12;border:1px solid var(--bd);border-radius:9px;padding:12px;height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;" class="mn"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS STATE -->
+  <div id="anaResult" style="display:none;">
+    <!-- Supplier header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:3px;">
+          <div class="gd" style="font-size:19px;font-weight:700;" id="rName"></div>
+          <span id="rCCI" class="badge bk-a"></span>
+        </div>
+        <div class="mn" style="font-size:11px;color:var(--ft);" id="rMeta"></div>
+      </div>
+      <div style="background:rgba(255,61,127,.09);border:1px solid rgba(255,61,127,.22);border-radius:10px;padding:11px 15px;max-width:360px;">
+        <div style="font-size:10px;color:var(--pk);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;">⚡ Recomendação Executiva IA</div>
+        <div id="rRec" style="font-size:13px;font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;border-bottom:1px solid var(--bd);margin-bottom:16px;gap:2px;overflow-x:auto;">
+      <div class="tab-b act" onclick="switchTab(0)" id="tb0">📊 Score Atual</div>
+      <div class="tab-b" onclick="switchTab(1)" id="tb1">🔮 Future Risk</div>
+      <div class="tab-b" onclick="switchTab(2)" id="tb2">🛡️ Cyber Intelligence</div>
+      <div class="tab-b" onclick="switchTab(3)" id="tb3">🔔 Alertas</div>
+      <div class="tab-b" onclick="switchTab(4)" id="tb4">🤖 Investigador IA</div>
+    </div>
+
+    <!-- TAB PANELS -->
+    <div id="tabPanels">
+
+      <!-- ── TAB 0: SCORE ATUAL ── -->
+      <div id="tp0" class="fadein">
+        <div style="display:grid;grid-template-columns:200px 1fr 240px;gap:14px;margin-bottom:14px;">
+          <!-- Gauge -->
+          <div class="card" style="padding:18px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+            <div class="mn" style="font-size:9.5px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;">Score Atual</div>
+            <div style="position:relative;width:130px;height:130px;">
+              <canvas id="gaugeAtual" width="130" height="130"></canvas>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+                <div class="gd" id="gaugeAtualNum" style="font-size:30px;font-weight:700;"></div>
+                <div style="font-size:9px;color:var(--ft);">/100</div>
+              </div>
+            </div>
+            <span id="gaugeAtualLbl" class="badge bk-m"></span>
+            <div style="font-size:11px;color:var(--ft);" id="gaugeAtualDecision"></div>
+          </div>
+          <!-- Radar -->
+          <div class="card" style="padding:18px;">
+            <div class="gd" style="font-size:13px;font-weight:700;margin-bottom:3px;">Análise por Eixo</div>
+            <div style="font-size:11px;color:var(--ft);margin-bottom:10px;">7 dimensões de risco (0–100)</div>
+            <div style="height:200px;"><canvas id="radarChart"></canvas></div>
+          </div>
+          <!-- Facts -->
+          <div class="card" style="padding:18px;">
+            <div class="gd" style="font-size:13px;font-weight:700;margin-bottom:12px;">Dados Cadastrais</div>
+            <div id="factsList" style="display:flex;flex-direction:column;gap:8px;font-size:12px;"></div>
+          </div>
+        </div>
+        <!-- Axis bars -->
+        <div class="card" style="padding:18px;">
+          <div class="gd" style="font-size:13px;font-weight:700;margin-bottom:14px;">Breakdown Detalhado dos Eixos</div>
+          <div id="axBars" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;"></div>
+        </div>
+      </div>
+
+      <!-- ── TAB 1: FUTURE RISK ── -->
+      <div id="tp1" style="display:none;" class="fadein">
+        <!-- 4 KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;">
+          <div class="card" style="padding:16px;text-align:center;">
+            <div class="mn" style="font-size:9px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Score Projetado (6M)</div>
+            <div class="gd" id="friScore" style="font-size:28px;font-weight:700;">/100</div>
+            <div id="friScoreLbl" style="font-size:11px;color:var(--ft);margin-top:3px;"></div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <div class="mn" style="font-size:9px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Confiança da Projeção</div>
+            <div class="gd" id="friConf" style="font-size:28px;font-weight:700;color:#2ED9B8;"></div>
+            <div style="font-size:11px;color:var(--ft);margin-top:3px;" id="friConfLbl"></div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <div class="mn" style="font-size:9px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Índice de Degradação</div>
+            <div class="gd" id="friDeg" style="font-size:28px;font-weight:700;"></div>
+            <div id="friDegLbl" style="font-size:11px;color:var(--ft);margin-top:3px;"></div>
+          </div>
+          <div class="card" style="padding:16px;text-align:center;">
+            <div class="mn" style="font-size:9px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Prob. Evento Negativo</div>
+            <div class="gd" id="friCollapse" style="font-size:28px;font-weight:700;color:#FF4D5E;"></div>
+            <div style="font-size:11px;color:var(--ft);margin-top:3px;">Supplier Collapse Detector</div>
+          </div>
+        </div>
+        <!-- Evolution chart 18M -->
+        <div class="card" style="padding:18px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+              <div class="gd" style="font-size:13px;font-weight:700;">Evolução do Score — 12M Histórico + 6M Projetados (NRFE)</div>
+              <div style="font-size:11px;color:var(--ft);margin-top:2px;">Neural Rose Future Engine · Linha tracejada = projeção IA</div>
+            </div>
+            <span id="friTrendBadge" class="badge bk-a"></span>
+          </div>
+          <div style="height:170px;"><canvas id="friTrendChart"></canvas></div>
+        </div>
+        <!-- Behavioral signals -->
+        <div class="card" style="padding:18px;">
+          <div class="gd" style="font-size:13px;font-weight:700;margin-bottom:12px;">Sinais Comportamentais SENTINEL — 14 indicadores</div>
+          <div id="sentinelSignals" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:12px;"></div>
+        </div>
+      </div>
+
+      <!-- ── TAB 2: CYBER INTELLIGENCE ── -->
+      <div id="tp2" style="display:none;" class="fadein">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div class="card" style="padding:18px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <div style="width:28px;height:28px;background:rgba(160,107,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;">🛡️</div>
+              <div>
+                <div class="gd" style="font-size:13px;font-weight:700;">Cyber Risk Intelligence Agent</div>
+                <div style="font-size:11px;color:var(--ft);">Superfície de ataque digital</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+              <div style="background:var(--p2);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center;">
+                <div class="mn" style="font-size:9px;color:var(--ft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Attack Surface Index</div>
+                <div class="gd" id="cyASI" style="font-size:22px;font-weight:700;"></div>
+                <div id="cyASIlbl" style="font-size:10.5px;margin-top:2px;"></div>
+              </div>
+              <div style="background:var(--p2);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center;">
+                <div class="mn" style="font-size:9px;color:var(--ft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Data Breach Risk</div>
+                <div class="gd" id="cyDBR" style="font-size:22px;font-weight:700;"></div>
+                <div id="cyDBRlbl" style="font-size:10.5px;margin-top:2px;"></div>
+              </div>
+            </div>
+            <div id="cyFindings" style="display:flex;flex-direction:column;gap:7px;font-size:12.5px;"></div>
+          </div>
+          <div class="card" style="padding:18px;">
+            <div class="gd" style="font-size:13px;font-weight:700;margin-bottom:4px;">Rede de Contágio</div>
+            <div style="font-size:11px;color:var(--ft);margin-bottom:12px;">Empresas conectadas via QSA — 1º grau</div>
+            <div id="cyNetwork" style="display:flex;flex-direction:column;gap:8px;"></div>
+            <div style="margin-top:14px;padding:11px 13px;background:rgba(160,107,255,.07);border:1px solid rgba(160,107,255,.2);border-radius:9px;">
+              <div style="font-size:10px;color:#A06BFF;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Índice de Contágio</div>
+              <div class="gd" id="cyContTag" style="font-size:20px;font-weight:700;"></div>
+              <div id="cyContDesc" style="font-size:11.5px;color:var(--ft);margin-top:2px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:18px;">
+          <div class="gd" style="font-size:13px;font-weight:700;margin-bottom:12px;">Intelligence Report — Achados IA</div>
+          <div id="cyReport" style="font-size:13px;line-height:1.75;color:#C5D0E8;background:#040A12;padding:14px;border-radius:9px;border-left:3px solid #A06BFF;"></div>
+        </div>
+      </div>
+
+      <!-- ── TAB 3: ALERTAS ── -->
+      <div id="tp3" style="display:none;" class="fadein">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="gd" style="font-size:14px;font-weight:700;">Alertas Ativos</div>
+          <div style="display:flex;gap:8px;">
+            <span id="alertCritCt" class="badge bk-c">0 CRÍTICOS</span>
+            <span id="alertAltoCt" class="badge bk-a">0 ALTOS</span>
+          </div>
+        </div>
+        <div id="alertsFeed" style="display:flex;flex-direction:column;gap:9px;"></div>
+        <!-- AI Actions -->
+        <div class="card" style="padding:18px;margin-top:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <div style="width:24px;height:24px;background:var(--pk2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;">🧠</div>
+            <div class="gd" style="font-size:13px;font-weight:700;">Ações Recomendadas pela IA</div>
+          </div>
+          <div id="aiActions" style="display:flex;flex-direction:column;gap:7px;"></div>
+        </div>
+      </div>
+
+      <!-- ── TAB 4: INVESTIGADOR IA ── -->
+      <div id="tp4" style="display:none;" class="fadein">
+        <div style="display:grid;grid-template-columns:1fr 260px;gap:14px;height:calc(100vh - 240px);">
+          <!-- Chat -->
+          <div class="card" style="padding:18px;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <div class="pulse" style="width:7px;height:7px;border-radius:50%;background:#2ED9B8;"></div>
+              <div class="gd" style="font-size:13px;font-weight:700;">Neural Investigator</div>
+              <span class="mn" style="font-size:10px;color:var(--ft);margin-left:auto;">Powered by Neural Rose AI</span>
+            </div>
+            <div id="chatBox" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;min-height:0;"></div>
+            <div style="display:flex;gap:8px;">
+              <input id="chatIn" placeholder="Pergunte sobre este fornecedor..." style="flex:1;background:#050B14;border:1px solid var(--bd);border-radius:9px;color:var(--tx);font-size:13px;padding:10px 14px;outline:none;font-family:'Inter',sans-serif;" onkeydown="if(event.key==='Enter')sendChat()" onfocus="this.style.borderColor='var(--pk)'" onblur="this.style.borderColor='var(--bd)'"/>
+              <button class="btn-pk" onclick="sendChat()" style="padding:10px 16px;font-size:13px;">→</button>
+            </div>
+          </div>
+          <!-- Quick questions -->
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="gd" style="font-size:12px;font-weight:700;color:var(--ft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Perguntas Rápidas</div>
+            <div id="quickQs" style="display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tabPanels -->
+  </div><!-- /anaResult -->
+</div><!-- /page-analyze -->
+
+<!-- ═══════════════════════════════════════
+     PAGE: WHAT-IF SIMULATOR
+═══════════════════════════════════════ -->
+<div id="page-whatif" class="page">
+  <div class="gd" style="font-size:18px;font-weight:700;margin-bottom:4px;">Simulador What-If</div>
+  <div style="font-size:13px;color:var(--ft);margin-bottom:18px;">Simule cenários de risco e veja o impacto no score em tempo real</div>
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;">
+    <!-- Scenarios -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card" style="padding:18px;">
+        <div class="gd" style="font-size:13.5px;font-weight:700;margin-bottom:3px;">Fornecedor: <span style="color:var(--pk)" id="wiName">TechSolutions Ltda</span></div>
+        <div class="mn" style="font-size:11px;color:var(--ft);margin-bottom:18px;">Score base: <span id="wiBase">74</span> pts · Ative cenários para simular impacto</div>
+        <div id="wiScenarios" style="display:flex;flex-direction:column;gap:0;"></div>
+      </div>
+    </div>
+    <!-- Result panel -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card" style="padding:20px;text-align:center;">
+        <div class="mn" style="font-size:9.5px;color:var(--ft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Score Simulado</div>
+        <div style="position:relative;width:150px;height:150px;margin:0 auto 10px;">
+          <canvas id="wiRing" width="150" height="150"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+            <div class="gd" id="wiNum" style="font-size:34px;font-weight:700;"></div>
+            <div style="font-size:9px;color:var(--ft);">/100</div>
+          </div>
+        </div>
+        <div id="wiDelta" style="font-size:13px;font-weight:700;margin-bottom:6px;"></div>
+        <span id="wiLvl" class="badge bk-m"></span>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div class="gd" style="font-size:12.5px;font-weight:700;margin-bottom:10px;">Impacto nos Eixos</div>
+        <div id="wiAxImpact" style="display:flex;flex-direction:column;gap:7px;font-size:12px;"></div>
+      </div>
+      <div id="wiAlert" class="card" style="padding:14px;border-color:rgba(255,61,127,.3);display:none;">
+        <div style="font-size:11px;color:var(--pk);font-weight:700;margin-bottom:4px;">⚠ Alerta de Simulação</div>
+        <div id="wiAlertTxt" style="font-size:12px;color:#C5D0E8;line-height:1.6;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: RANKING
+═══════════════════════════════════════ -->
+<div id="page-ranking" class="page">
+  <div class="gd" style="font-size:18px;font-weight:700;margin-bottom:4px;">Ranking de Fornecedores</div>
+  <div style="font-size:13px;color:var(--ft);margin-bottom:16px;">Ordenado por Score Atual · Base completa com análise preditiva</div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <thead style="background:#0A1525;">
+        <tr id="rankHead"></tr>
+      </thead>
+      <tbody id="rankBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: ALERTS
+═══════════════════════════════════════ -->
+<div id="page-alerts" class="page">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div>
+      <div class="gd" style="font-size:18px;font-weight:700;margin-bottom:3px;">Feed de Alertas</div>
+      <div style="font-size:13px;color:var(--ft);">Monitoramento contínuo · todos os fornecedores wehandle</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <span class="badge bk-c" style="padding:5px 12px;">7 CRÍTICOS</span>
+      <span class="badge bk-a" style="padding:5px 12px;">12 ALTOS</span>
+    </div>
+  </div>
+  <div id="fullFeed" style="display:flex;flex-direction:column;gap:9px;"></div>
+</div>
+
+  </div><!-- /pages container -->
+</div><!-- /main -->
+
+<script>
+/* ═══════════════ DATA ═══════════════ */
+
+const SC = {
+  techsol:{
+    name:'TechSolutions Ltda', cnpj:'11.444.777/0001-61', sit:'ATIVA', porte:'MÉDIA', capital:'R$ 2.400.000',
+    abertura:'2017-03-14', socios:3, cnae:'Desenvolvimento de software sob encomenda',
+    scoreAtual:74, scorePred:61, conf:87, cci:38, fri:62, collapse:52, cciStatus:'ALTO RISCO',
+    rec:'Revisão contratual obrigatória — risco preditivo elevado',
+    axes:{Fiscal:72,Jurídico:68,Societário:81,Solvência:75,Compliance:63,Operacional:88,'Cyber Risk':55},
+    trend:[82,80,79,77,76,75,74,73,71,70,68,74],
+    pred:[76,74,72,70,68,66,64,62,61,60,61,61,62,63,62,61,61,61],
+    alerts:[
+      {sev:'CRÍTICO',t:'Score Preditivo 13pts abaixo do Atual',d:'Future Risk Engine detectou degradação em 3 eixos. Probabilidade de evento negativo em 6 meses: 52%.',a:'Solicitar auditoria preventiva imediata',time:'há 2h'},
+      {sev:'ALTO',t:'Débito fiscal ativo — Receita Federal',d:'Débito identificado no eixo Fiscal. Sem CND válida nos últimos 90 dias. Valor estimado: R$ 2,3M.',a:'Bloquear novos contratos até regularização',time:'há 3h'},
+      {sev:'MÉDIO',t:'Alteração societária — menos de 6 meses',d:'Novo sócio (30% de participação) registrado há 4 meses. Padrão SENTINEL: suspeito.',a:'Solicitar documentação KYC atualizada',time:'há 1 dia'},
+    ],
+    actions:[
+      {p:'IMEDIATA',t:'Solicitar auditoria fiscal e CND atualizada'},
+      {p:'ALTA',t:'Revisar cláusulas de rescisão contratual'},
+      {p:'NORMAL',t:'Monitoramento semanal do eixo Jurídico'},
+    ],
+    narrative:'A TechSolutions Ltda apresenta Score Atual de 74 (Médio), porém a IA preditiva projeta queda para 61 em 6 meses — divergência crítica de 13 pontos que aciona protocolo de revisão. Os eixos Jurídico (68) e Cyber Risk (55) são os vetores primários de deterioração. O Fraud Risk Index de 62/100 indica 14 sinais comportamentais ativos.',
+    cyASI:62, cyDBR:41,
+    cyFindings:[
+      {sev:'ALTO',t:'3 credenciais corporativas expostas em leak database (HaveIBeenPwned)'},
+      {sev:'MÉDIO',t:'Domínio sem certificado HTTPS no ambiente de homologação'},
+      {sev:'MÉDIO',t:'2 subdomínios ativos não mapeados na declaração de escopo'},
+      {sev:'INFO',t:'Presença em LinkedIn com 47 funcionários — porte compatível'},
+    ],
+    cyNetwork:[
+      {name:'Alpha Dev ME',score:38,link:'Sócio em comum: João P. Silva'},
+      {name:'Beta Sistemas Ltda',score:55,link:'Mesmo endereço registrado'},
+      {name:'Gamma Services',score:72,link:'Sócio em comum: Maria C. Souza'},
+    ],
+    cyContTag:'41/100',cyContDesc:'Risco de contágio MÉDIO-ALTO via rede de sócios',
+    cyReport:'A análise de Cyber Intelligence identificou 3 credenciais corporativas da TechSolutions Ltda em bases de dados de vazamentos, o que representa vetor de risco de acesso não autorizado aos sistemas internos. A ausência de certificados HTTPS em ambientes não-produtivos sugere lacunas no programa de segurança. Os dois subdomínios não declarados indicam possível shadow IT. A combinação desses fatores eleva o Attack Surface Index para 62 — nível que exige plano de remediação dentro de 30 dias para fornecedores com acesso a dados sensíveis do contratante.',
+    sentinel:[
+      {s:true,t:'Rotatividade de sócios acelerada'},{s:true,t:'Variação de capital sem justificativa'},
+      {s:false,t:'Multiplicidade de CNAE suspeita'},{s:true,t:'Endereço compartilhado com empresa sancionada'},
+      {s:false,t:'Clustering de abertura em lote'},{s:true,t:'Ausência parcial de presença digital'},
+      {s:false,t:'Inconsistência capital × atividade'},{s:true,t:'Alteração societária < 6 meses'},
+      {s:false,t:'CNAE sem histórico operacional'},{s:true,t:'Proporção sócios/capital atípica'},
+      {s:false,t:'Ausência de contato público'},{s:true,t:'PEP em contato indireto'},
+      {s:false,t:'Coincidência de datas de abertura'},{s:true,t:'Razão capital/faturamento invertida'},
+    ],
+    quickQs:['Esse fornecedor é seguro para contratar?','Quais os maiores riscos identificados?','O que fazer agora?','Explique o Score Preditivo','Esse fornecedor pode quebrar?'],
+  },
+  embraer:{
+    name:'Embraer S.A.', cnpj:'07.689.002/0001-89', sit:'ATIVA', porte:'GRANDE', capital:'R$ 4.784.600.000',
+    abertura:'1969-08-19', socios:8, cnae:'Fabricação de aeronaves, turbinas e motores',
+    scoreAtual:91, scorePred:90, conf:94, cci:87, fri:9, collapse:2, cciStatus:'ESTÁVEL',
+    rec:'Auto-aprovado para contratação — perfil de excelência',
+    axes:{Fiscal:95,Jurídico:90,Societário:88,Solvência:94,Compliance:96,Operacional:87,'Cyber Risk':79},
+    trend:[88,89,89,90,90,91,91,90,91,91,91,91],
+    pred:[88,89,89,90,90,91,91,91,91,90,90,90,90,90,90,90,90,90],
+    alerts:[
+      {sev:'INFO',t:'Monitoramento ativo — todos os eixos OK',d:'Embraer S.A. mantém conformidade plena em todos os 7 eixos de avaliação.',a:'Renovação automática aprovada',time:'há 1h'},
+    ],
+    actions:[
+      {p:'NORMAL',t:'Renovar contrato com condições mantidas'},
+      {p:'NORMAL',t:'Monitoramento mensal padrão'},
+    ],
+    narrative:'A Embraer S.A. apresenta Score Atual de 91 (Baixo Risco), com projeção estável de 90 para os próximos 6 meses (confiança 94%). Todos os eixos performam acima de 79, com destaque para Compliance (96) e Fiscal (95). O Fraud Risk Index de apenas 9/100 confirma ausência de sinais comportamentais suspeitos. Com 55 anos de mercado e capital social de R$ 4,7 bilhões, é um fornecedor de excelência.',
+    cyASI:18, cyDBR:8,
+    cyFindings:[
+      {sev:'INFO',t:'Certificados SSL/TLS válidos em todos os domínios mapeados'},
+      {sev:'INFO',t:'Presença digital estruturada — site, LinkedIn, relatórios anuais públicos'},
+      {sev:'INFO',t:'Programa de segurança da informação certificado (ISO 27001)'},
+    ],
+    cyNetwork:[
+      {name:'Embraer Aircraft Holding',score:89,link:'Subsidiária integral'},
+      {name:'Eve Urban Air Mobility',score:82,link:'Empresa afiliada'},
+    ],
+    cyContTag:'11/100',cyContDesc:'Risco de contágio BAIXO — rede consolidada e monitorada',
+    cyReport:'A análise de Cyber Intelligence da Embraer S.A. não identificou vetores de risco relevantes. Todos os domínios possuem certificados válidos, a superfície de ataque é controlada e não há credenciais expostas em bases de dados conhecidas. A empresa mantém certificação ISO 27001 e publica relatórios de transparência anuais. O Attack Surface Index de 18/100 indica controle robusto. Avaliação: fornecedor seguro do ponto de vista de risco cibernético.',
+    sentinel:[
+      {s:false,t:'Rotatividade de sócios acelerada'},{s:false,t:'Variação de capital sem justificativa'},
+      {s:false,t:'Multiplicidade de CNAE suspeita'},{s:false,t:'Endereço compartilhado com empresa sancionada'},
+      {s:false,t:'Clustering de abertura em lote'},{s:false,t:'Ausência parcial de presença digital'},
+      {s:false,t:'Inconsistência capital × atividade'},{s:false,t:'Alteração societária < 6 meses'},
+      {s:false,t:'CNAE sem histórico operacional'},{s:false,t:'Proporção sócios/capital atípica'},
+      {s:false,t:'Ausência de contato público'},{s:false,t:'PEP em contato indireto'},
+      {s:false,t:'Coincidência de datas de abertura'},{s:false,t:'Razão capital/faturamento invertida'},
+    ],
+    quickQs:['Esse fornecedor é seguro?','Por que o score é tão alto?','Posso renovar o contrato?','Quais riscos existem?','Histórico de conformidade'],
+  }
+};
+
+const DASH_ROWS = [
+  {name:'Embraer S.A.',            sa:91, sp:90, conf:94, cci:'ESTÁVEL',    rec:'Auto-aprovado', key:'embraer'},
+  {name:'DHL Supply Chain Brasil', sa:85, sp:84, conf:91, cci:'ESTÁVEL',    rec:'Monitoramento padrão', key:'alpha'},
+  {name:'Unilever Brasil Ltda',    sa:82, sp:80, conf:89, cci:'ESTÁVEL',    rec:'Aprovado com monitoramento', key:'alpha'},
+  {name:'Coca-Cola FEMSA Brasil',  sa:79, sp:75, conf:86, cci:'MÉDIO',      rec:'Atenção ao eixo Fiscal', key:'alpha'},
+  {name:'Globo Comunicações',      sa:76, sp:72, conf:85, cci:'MÉDIO',      rec:'Revisão trimestral', key:'alpha'},
+  {name:'TechSolutions Ltda',      sa:74, sp:61, conf:87, cci:'ALTO RISCO', rec:'Revisão urgente', key:'techsol', hi:true},
+  {name:'TransporteLog ME',        sa:48, sp:41, conf:80, cci:'CRÍTICO',    rec:'Paralisar novos volumes', key:'techsol'},
+];
+
+const RANK_DATA = [
+  {name:'Embraer S.A.',            sa:91, sp:90, risk:'BAIXO'},
+  {name:'DHL Supply Chain Brasil', sa:85, sp:84, risk:'BAIXO'},
+  {name:'Unilever Brasil Ltda',    sa:82, sp:80, risk:'BAIXO'},
+  {name:'Coca-Cola FEMSA Brasil',  sa:79, sp:75, risk:'MÉDIO'},
+  {name:'Globo Comunicações',      sa:76, sp:72, risk:'MÉDIO'},
+  {name:'TechSolutions Ltda',      sa:74, sp:61, risk:'ALTO',    hi:true},
+  {name:'Prime Logística ME',      sa:68, sp:64, risk:'MÉDIO'},
+  {name:'SerTec Soluções Ltda',    sa:61, sp:57, risk:'ALTO'},
+  {name:'TransporteLog ME',        sa:48, sp:41, risk:'CRÍTICO'},
+];
+
+const FULL_ALERTS = [
+  {sev:'CRÍTICO',sup:'TransporteLog ME',      t:'Empresa ativa no CNEP desde mar/2025',          d:'Registro ativo no Cadastro Nacional de Empresas Punidas. Bloqueio de contratação pública.',a:'BLOQUEIO IMEDIATO'},
+  {sev:'CRÍTICO',sup:'TransporteLog ME',      t:'79% probabilidade de colapso — FRI 88/100',     d:'Múltiplos sinais: queda de capital, rotatividade de sócios, endereço de empresa sancionada.',a:'Protocolo de contingência urgente'},
+  {sev:'CRÍTICO',sup:'SerTec Soluções Ltda', t:'Score caiu 15pts em 60 dias',                   d:'Queda de 76 para 61. NRFE projeta 54 em 3 meses. Eixo Jurídico abaixo de 40.',a:'Auditoria preventiva imediata'},
+  {sev:'ALTO',   sup:'TechSolutions Ltda',   t:'Score Preditivo 13pts abaixo do Atual',         d:'Degradação em eixos Fiscal, Jurídico e Cyber Risk. Confiança 87%.',a:'Revisão contratual'},
+  {sev:'ALTO',   sup:'TechSolutions Ltda',   t:'Débito fiscal ativo — Receita Federal',         d:'Sem CND válida em 90 dias. Débito estimado R$ 2,3M.',a:'Bloquear novos contratos'},
+  {sev:'ALTO',   sup:'Coca-Cola FEMSA Brasil',t:'Eixo Fiscal caiu 8pts',                       d:'Pendência tributária identificada. CND vence em 14 dias.',a:'Solicitar CND atualizada'},
+  {sev:'MÉDIO',  sup:'TechSolutions Ltda',   t:'Alteração societária suspeita < 6 meses',      d:'Novo sócio 30% registrado há 4 meses. SENTINEL: padrão atípico.',a:'KYC atualizado'},
+  {sev:'MÉDIO',  sup:'Prime Logística ME',   t:'Capital social reduzido 35%',                  d:'Redução em 12 meses. Eixo Solvência em alerta.',a:'Monitorar solvência'},
+  {sev:'INFO',   sup:'Embraer S.A.',         t:'Monitoramento ativo — sem anomalias',           d:'Todos os 7 eixos dentro dos parâmetros. Score estável 91.',a:'Renovação automática aprovada'},
+  {sev:'INFO',   sup:'DHL Supply Chain',     t:'Certidões renovadas com sucesso',               d:'CND e FGTS regulares. Compliance 94.',a:'Nenhuma ação necessária'},
+];
+
+const WI_SCENARIOS = [
+  {id:'w1',label:'Inclusão em CEIS/CNEP',sub:'Lista de sanções CGU — bloqueio de contratação pública',impact:-32,axis:'Jurídico',neg:true},
+  {id:'w2',label:'Perda de Licença Operacional',sub:'Cancelamento do CNAE principal',impact:-18,axis:'Operacional',neg:true},
+  {id:'w3',label:'Alteração Societária Suspeita',sub:'Mudança de sócio majoritário < 6 meses',impact:-12,axis:'Societário',neg:true},
+  {id:'w4',label:'Vazamento de Dados Crítico',sub:'Credenciais expostas + dados de clientes',impact:-15,axis:'Cyber Risk',neg:true},
+  {id:'w5',label:'✓ Regularização Fiscal Completa',sub:'Quitação de pendências Receita Federal',impact:+8,axis:'Fiscal',neg:false},
+];
+
+/* ═══════════════ STATE ═══════════════ */
+let curPage = 'dashboard';
+let curSup = null;
+let curTab = 0;
+let charts = {};
+let wiBase = 74;
+let chatHistory = [];
+
+/* ═══════════════ NAV ═══════════════ */
+function goPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('act'));
+  document.querySelectorAll('.nav-i').forEach(x=>x.classList.remove('act'));
+  document.getElementById('page-'+p).classList.add('act');
+  document.querySelector(`[data-p="${p}"]`).classList.add('act');
+  const titles={dashboard:'Dashboard',analyze:'Analisar CNPJ',whatif:'Simulador What-If',ranking:'Ranking',alerts:'Feed de Alertas'};
+  document.getElementById('topTitle').textContent=titles[p]||p;
+  curPage=p;
+  if(p==='ranking')renderRanking();
+  if(p==='alerts')renderFullFeed();
+  if(p==='whatif')initWI();
+}
+
+/* ═══════════════ CNPJ MASK ═══════════════ */
+function maskCNPJ(el){
+  let v=el.value.replace(/\D/g,'').slice(0,14);
+  v=v.replace(/^(\d{2})(\d)/,'$1.$2');
+  v=v.replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3');
+  v=v.replace(/\.(\d{3})(\d)/,'.$1/$2');
+  v=v.replace(/(\d{4})(\d)/,'$1-$2');
+  el.value=v;
+}
+
+function loadDemo(k){
+  const cnpjs={techsol:'11.444.777/0001-61',embraer:'07.689.002/0001-89'};
+  document.getElementById('cnpjIn').value=cnpjs[k]||cnpjs.techsol;
+  doAnalyze(k);
+}
+
+/* ═══════════════ ANALYZE ═══════════════ */
+function doAnalyze(forceKey){
+  const rawCNPJ=document.getElementById('cnpjIn').value.replace(/\D/g,'');
+  let key='techsol';
+  if(forceKey) key=forceKey;
+  else if(rawCNPJ==='07689002000189') key='embraer';
+
+  const sup=SC[key]||SC.techsol;
+  curSup=sup; wiBase=sup.scoreAtual;
+
+  ['anaInput','anaResult'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('anaProc').style.display='block';
+  document.getElementById('procCnpjLabel').textContent=sup.cnpj;
+
+  const log=document.getElementById('procLog');
+  log.innerHTML='';
+
+  const steps=[
+    [0,   '#4F9DFF','AGENTE-TRIAGEM',   'Iniciando análise · CNPJ '+sup.cnpj],
+    [350, '#4F9DFF','AGENTE-TRIAGEM',   'Consultando BrasilAPI / Receita Federal...'],
+    [800, '#2ED9B8','AGENTE-TRIAGEM',   '✓ Dados cadastrais: '+sup.name+' · '+sup.sit],
+    [1100,'#A06BFF','AGENTE-COMPLIANCE','Verificando CEIS, CNEP, TCU, CEPIM, CGU...'],
+    [1500,'#2ED9B8','AGENTE-COMPLIANCE','✓ Fontes sancionatórias: '+sup.alerts.length+' ocorrência(s)'],
+    [1800,'#FFB23D','AGENTE-FISCAL',    'Consultando Simples Nacional · SINTEGRA · CND...'],
+    [2200,'#FFB23D','AGENTE-FISCAL',    'Eixo Fiscal calculado: '+sup.axes['Fiscal']+'/100'],
+    [2500,'#FF3D7F','SENTINEL',         'Analisando 14 sinais comportamentais SENTINEL...'],
+    [2900,'#FF3D7F','SENTINEL',         'Fraud Risk Index: '+sup.fri+'/100 · '+sup.sentinel.filter(s=>s.s).length+' sinais ativos'],
+    [3200,'#A06BFF','NRFE',             'Ativando Neural Rose Future Engine...'],
+    [3600,'#A06BFF','NRFE',             'Score Preditivo 6M: '+sup.scorePred+'/100 · confiança '+sup.conf+'%'],
+    [3900,'#2ED9B8','CCI-ENGINE',       'Corporate Continuity Index: '+sup.cci+'/100'],
+    [4200,'#A06BFF','CYBER-AGENT',      'Attack Surface Index: '+sup.cyASI+'/100'],
+    [4500,'#2ED9B8','EXEC-AGENT',       'Gerando narrativa executiva e alertas...'],
+    [4800,'#2ED9B8','EXEC-AGENT',       '✓ Análise completa — '+sup.alerts.length+' alertas · score '+sup.scoreAtual+'/100'],
+  ];
+  const pcts=[5,15,28,38,50,58,67,75,82,87,91,94,96,98,100];
+
+  steps.forEach(([d,c,ag,msg],i)=>{
+    setTimeout(()=>{
+      const line=document.createElement('div');
+      line.className='logln';
+      line.style.fontSize='10.5px';
+      line.innerHTML=`<span style="color:#4B5E7A;">[${new Date().toLocaleTimeString('pt-BR')}]</span> <span style="color:${c};font-weight:700;"> [${ag}]</span> <span style="color:#CBD5E1;"> ${msg}</span>`;
+      log.appendChild(line);
+      log.scrollTop=log.scrollHeight;
+      document.getElementById('procBar').style.width=pcts[i]+'%';
+      document.getElementById('procPct').textContent=pcts[i]+'%';
+      document.getElementById('procStep').textContent=msg;
+      if(i===steps.length-1) setTimeout(()=>showResult(sup),500);
+    },d);
+  });
+}
+
+/* ═══════════════ SHOW RESULT ═══════════════ */
+function showResult(s){
+  document.getElementById('anaProc').style.display='none';
+  document.getElementById('anaResult').style.display='block';
+
+  document.getElementById('rName').textContent=s.name;
+  document.getElementById('rMeta').textContent=s.cnpj+' · '+s.sit+' · '+s.porte+' · Capital: '+s.capital;
+  document.getElementById('rRec').textContent=s.rec;
+
+  const cciEl=document.getElementById('rCCI');
+  cciEl.textContent=s.cciStatus;
+  cciEl.className='badge '+(s.cciStatus==='ESTÁVEL'?'bk-b':s.cciStatus==='CRÍTICO'?'bk-c':'bk-a');
+
+  switchTab(0);
+  buildTab0(s);
+  buildTab1(s);
+  buildTab2(s);
+  buildTab3(s);
+  buildTab4(s);
+}
+
+/* ══ TAB 0 ══ */
+function buildTab0(s){
+  dChart('gaugeAtual'); dChart('radarChart');
+  buildRing('gaugeAtual',s.scoreAtual,sColor(s.scoreAtual),130);
+  document.getElementById('gaugeAtualNum').textContent=s.scoreAtual;
+  document.getElementById('gaugeAtualNum').style.color=sColor(s.scoreAtual);
+  const lbl=document.getElementById('gaugeAtualLbl');
+  lbl.textContent=sLabel(s.scoreAtual); lbl.className='badge '+sBadge(s.scoreAtual);
+  const decMap={BAIXO:'Auto-Aprovado',MÉDIO:'Aprovado c/ Ressalvas',ALTO:'Revisão Manual',CRÍTICO:'BLOQUEADO'};
+  document.getElementById('gaugeAtualDecision').textContent=decMap[sLabel(s.scoreAtual)]||'';
+
+  // Radar
+  const rCtx=document.getElementById('radarChart').getContext('2d');
+  charts.radarChart=new Chart(rCtx,{
+    type:'radar',
+    data:{labels:Object.keys(s.axes),datasets:[{
+      label:'Score',data:Object.values(s.axes),
+      borderColor:'#FF3D7F',backgroundColor:'rgba(255,61,127,.1)',
+      borderWidth:2,pointBackgroundColor:'#FF3D7F',pointRadius:4,
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{r:{min:0,max:100,ticks:{stepSize:25,color:'#4B5E7A',font:{size:9},backdropColor:'transparent'},
+        grid:{color:'#1A2B42'},angleLines:{color:'#1A2B42'},
+        pointLabels:{color:'#8897B5',font:{size:10.5,family:'Inter'}}}}}
+  });
+
+  // Facts
+  const facts=document.getElementById('factsList');
+  const rows=[
+    ['Razão Social',s.name],['Situação',s.sit],['Porte',s.porte],
+    ['Capital Social',s.capital],['Abertura',formatDate(s.abertura)],
+    ['Sócios / Administradores',s.socios+' pessoas'],['CNAE Principal',s.cnae],
+  ];
+  facts.innerHTML=rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--bd);">
+    <span style="color:var(--ft);font-size:11px;">${k}</span>
+    <span style="font-weight:600;font-size:11.5px;text-align:right;">${v}</span>
+  </div>`).join('');
+
+  // Axis bars
+  const axBars=document.getElementById('axBars');
+  axBars.innerHTML=Object.entries(s.axes).map(([ax,val])=>{
+    const c=sColor(val);
+    const wts={Fiscal:'20%',Jurídico:'20%',Societário:'15%',Solvência:'15%',Compliance:'15%',Operacional:'10%','Cyber Risk':'5%'};
+    return `<div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:12px;font-weight:600;">${ax}</span>
+        <span style="display:flex;gap:8px;align-items:center;">
+          <span class="mn" style="font-size:10px;color:var(--ft);">${wts[ax]||''}</span>
+          <span class="mn" style="font-size:12px;font-weight:700;color:${c};">${val}</span>
+        </span>
+      </div>
+      <div style="height:7px;background:#1A2B42;border-radius:99px;overflow:hidden;">
+        <div style="height:100%;background:${c};border-radius:99px;width:${val}%;transition:width 1s;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══ TAB 1 ══ */
+function buildTab1(s){
+  dChart('friTrendChart');
+  document.getElementById('friScore').textContent=s.scorePred+'/100';
+  document.getElementById('friScore').style.color=sColor(s.scorePred);
+  document.getElementById('friScoreLbl').textContent=sLabel(s.scorePred);
+  document.getElementById('friConf').textContent=s.conf+'%';
+  document.getElementById('friConfLbl').textContent=s.conf>=85?'Alta confiança':'Confiança moderada';
+
+  const deg=Math.max(0,s.scoreAtual-s.scorePred);
+  document.getElementById('friDeg').textContent=deg+'%';
+  document.getElementById('friDeg').style.color=deg>10?'#FF4D5E':deg>5?'#FF8C42':'#2ED9B8';
+  document.getElementById('friDegLbl').textContent=deg>10?'Degradação alta':deg>5?'Degradação moderada':'Estável';
+  document.getElementById('friCollapse').textContent=s.collapse+'%';
+  document.getElementById('friCollapse').style.color=s.collapse>50?'#FF4D5E':s.collapse>25?'#FF8C42':'#2ED9B8';
+
+  const trendBadge=document.getElementById('friTrendBadge');
+  const last=s.trend;
+  const dir=last[11]<last[0]?'DEGRADAÇÃO ▼':last[11]>last[0]?'RECUPERAÇÃO ▲':'ESTÁVEL';
+  trendBadge.textContent='Tendência: '+dir;
+  trendBadge.className='badge '+(last[11]<last[0]?'bk-a':last[11]>last[0]?'bk-b':'bk-i');
+
+  const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan','Fev','Mar','Abr','Mai','Jun'];
+  const ctx=document.getElementById('friTrendChart').getContext('2d');
+  charts.friTrendChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:months,datasets:[
+      {label:'Score Histórico (12M)',data:[...s.trend,...Array(6).fill(null)],
+        borderColor:'#4F9DFF',backgroundColor:'rgba(79,157,255,.08)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#4F9DFF'},
+      {label:'Projeção NRFE (6M)',data:[...Array(12).fill(null),s.trend[11],...s.pred.slice(12)],
+        borderColor:'#A06BFF',backgroundColor:'rgba(160,107,255,.07)',borderDash:[6,4],borderWidth:2,tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#A06BFF'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#8897B5',font:{size:11},usePointStyle:true}}},
+      scales:{x:{ticks:{color:'#4B5E7A',font:{size:9.5}},grid:{color:'#1A2B42'}},
+        y:{min:20,max:100,ticks:{color:'#4B5E7A',font:{size:9.5}},grid:{color:'#1A2B42'}}}}
+  });
+
+  // Sentinel signals
+  const sig=document.getElementById('sentinelSignals');
+  sig.innerHTML=s.sentinel.map(x=>`<div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:${x.s?'rgba(255,77,94,.06)':'rgba(46,217,184,.04)'};border:1px solid ${x.s?'rgba(255,77,94,.2)':'rgba(46,217,184,.12)'};border-radius:7px;">
+    <span style="font-size:13px;">${x.s?'🔴':'🟢'}</span>
+    <span style="font-size:11.5px;color:${x.s?'#E8A0A5':'#8897B5'};">${x.t}</span>
+  </div>`).join('');
+}
+
+/* ══ TAB 2 ══ */
+function buildTab2(s){
+  document.getElementById('cyASI').textContent=s.cyASI+'/100';
+  document.getElementById('cyASI').style.color=sColor(100-s.cyASI);
+  document.getElementById('cyASIlbl').textContent=s.cyASI>60?'Risco Elevado':s.cyASI>35?'Risco Moderado':'Controlado';
+  document.getElementById('cyASIlbl').style.color=s.cyASI>60?'#FF4D5E':s.cyASI>35?'#FF8C42':'#2ED9B8';
+  document.getElementById('cyDBR').textContent=s.cyDBR+'%';
+  document.getElementById('cyDBR').style.color=s.cyDBR>50?'#FF4D5E':s.cyDBR>25?'#FF8C42':'#2ED9B8';
+  document.getElementById('cyDBRlbl').textContent=s.cyDBR>50?'Crítico':s.cyDBR>25?'Moderado':'Baixo';
+  document.getElementById('cyDBRlbl').style.color=s.cyDBR>50?'#FF4D5E':s.cyDBR>25?'#FF8C42':'#2ED9B8';
+
+  const sevC={ALTO:'#FF8C42',MÉDIO:'#FFB23D',INFO:'#4F9DFF',CRÍTICO:'#FF4D5E'};
+  document.getElementById('cyFindings').innerHTML=s.cyFindings.map(f=>`<div style="display:flex;gap:8px;align-items:flex-start;font-size:12px;padding:7px 0;border-bottom:1px solid var(--bd);">
+    <span class="mn" style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;background:${sevC[f.sev]}1A;color:${sevC[f.sev]};border:1px solid ${sevC[f.sev]}33;flex-shrink:0;margin-top:1px;">${f.sev}</span>
+    <span style="color:#C5D0E8;">${f.t}</span>
+  </div>`).join('');
+
+  document.getElementById('cyNetwork').innerHTML=s.cyNetwork.map(n=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--p2);border:1px solid var(--bd);border-radius:8px;">
+    <div style="width:32px;height:32px;border-radius:8px;background:${sColor(n.score)}22;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${sColor(n.score)};font-family:'JetBrains Mono',monospace;flex-shrink:0;">${n.score}</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:12.5px;font-weight:600;">${n.name}</div>
+      <div style="font-size:11px;color:var(--ft);margin-top:1px;">${n.link}</div>
+    </div>
+    <span class="badge ${sBadge(n.score)}">${sLabel(n.score)}</span>
+  </div>`).join('');
+
+  document.getElementById('cyContTag').textContent=s.cyContTag;
+  document.getElementById('cyContDesc').textContent=s.cyContDesc;
+  document.getElementById('cyReport').textContent=s.cyReport;
+}
+
+/* ══ TAB 3 ══ */
+function buildTab3(s){
+  const sevC={CRÍTICO:'#FF4D5E',ALTO:'#FF8C42',MÉDIO:'#FFB23D',INFO:'#4F9DFF'};
+  const sevBg={CRÍTICO:'rgba(255,77,94,.1)',ALTO:'rgba(255,140,66,.1)',MÉDIO:'rgba(255,178,61,.08)',INFO:'rgba(79,157,255,.08)'};
+  const crit=s.alerts.filter(a=>a.sev==='CRÍTICO').length;
+  const alto=s.alerts.filter(a=>a.sev==='ALTO').length;
+  document.getElementById('alertCritCt').textContent=crit+' CRÍTICOS';
+  document.getElementById('alertAltoCt').textContent=alto+' ALTOS';
+
+  document.getElementById('alertsFeed').innerHTML=s.alerts.map(a=>`<div style="display:flex;gap:10px;padding:12px 14px;background:${sevBg[a.sev]};border:1px solid ${sevC[a.sev]}33;border-radius:10px;">
+    <div style="width:7px;height:7px;border-radius:50%;background:${sevC[a.sev]};flex-shrink:0;margin-top:4px;"></div>
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:wrap;">
+        <span class="mn" style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:5px;background:${sevC[a.sev]}1A;color:${sevC[a.sev]};border:1px solid ${sevC[a.sev]}33;">${a.sev}</span>
+        <span style="font-size:13px;font-weight:600;">${a.t}</span>
+        <span style="font-size:11px;color:var(--ft);margin-left:auto;">${a.time}</span>
+      </div>
+      <div style="font-size:12px;color:#8897B5;line-height:1.5;margin-bottom:5px;">${a.d}</div>
+      <div style="font-size:11.5px;color:${sevC[a.sev]};font-weight:600;">→ ${a.a}</div>
+    </div>
+  </div>`).join('');
+
+  const priC={IMEDIATA:'#FF4D5E',ALTA:'#FF8C42',NORMAL:'#4F9DFF'};
+  document.getElementById('aiActions').innerHTML=s.actions.map(a=>`<div style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;">
+    <span class="mn" style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:5px;background:${priC[a.p]||'#6B7FA3'}1A;color:${priC[a.p]||'#6B7FA3'};border:1px solid ${priC[a.p]||'#6B7FA3'}30;flex-shrink:0;margin-top:1px;">${a.p}</span>
+    <span style="color:#CBD5E1;">${a.t}</span>
+  </div>`).join('');
+}
+
+/* ══ TAB 4 ══ */
+function buildTab4(s){
+  chatHistory=[];
+  const chatBox=document.getElementById('chatBox');
+  chatBox.innerHTML='';
+  addChat('ai',`Olá! Sou o Neural Investigator. Analisei <b>${s.name}</b> em tempo real. Score: <b style="color:${sColor(s.scoreAtual)}">${s.scoreAtual}/100</b> · Score Preditivo: <b style="color:${sColor(s.scorePred)}">${s.scorePred}/100</b>. Qual é sua dúvida sobre este fornecedor?`);
+
+  document.getElementById('quickQs').innerHTML=s.quickQs.map(q=>`<div onclick="askQuestion('${q}')" style="padding:9px 12px;background:var(--p2);border:1px solid var(--bd);border-radius:8px;cursor:pointer;font-size:12px;color:var(--dm);transition:all .18s;" onmouseover="this.style.borderColor='var(--pk)';this.style.color='var(--tx)'" onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--dm)'">${q}</div>`).join('');
+}
+
+const AI_QA = {
+  'seguro':(s)=>s.scoreAtual>=80?`<b>${s.name}</b> é considerado <b style="color:#2ED9B8">seguro para contratação</b>. Score Atual ${s.scoreAtual}/100 (${sLabel(s.scoreAtual)}). A IA não identifica vetores de risco relevantes no horizonte de 6 meses. Recomendação: monitoramento padrão mensal.`:`<b>Atenção:</b> ${s.name} apresenta score ${s.scoreAtual}/100 (${sLabel(s.scoreAtual)}) com projeção preditiva de <b style="color:${sColor(s.scorePred)}">${s.scorePred}/100</b> em 6 meses. A contratação exige aprovação especial com cláusulas de rescisão reforçadas. ${s.cciStatus==='CRÍTICO'?'BLOQUEIO RECOMENDADO.':'Revisão contratual obrigatória antes de prosseguir.'}`,
+  'risco':(s)=>`Os maiores riscos identificados em <b>${s.name}</b> são:<br/>${Object.entries(s.axes).sort((a,b)=>a[1]-b[1]).slice(0,3).map(([ax,v])=>`• <b>${ax}</b>: ${v}/100 ${v<50?'(CRÍTICO)':v<65?'(ALTO)':'(MÉDIO)'}`).join('<br/>')}<br/><br/>O Fraud Risk Index é de <b style="color:#A06BFF">${s.fri}/100</b> com ${s.sentinel.filter(x=>x.s).length} sinais comportamentais ativos.`,
+  'agora':(s)=>s.scoreAtual>=80?`Para <b>${s.name}</b>, a ação recomendada é: <b>manter monitoramento mensal padrão</b>. Nenhuma intervenção urgente necessária. A IA projeta estabilidade nos próximos 6 meses (confiança ${s.conf}%).`:`Para <b>${s.name}</b>, ações imediatas:<br/>${s.actions.map((a,i)=>`<b>${i+1}. [${a.p}]</b> ${a.t}`).join('<br/>')}`,
+  'preditivo':(s)=>`O Score Preditivo de <b>${s.name}</b> é calculado pelo <b>Neural Rose Future Engine (NRFE)</b>, que analisa:<br/>• 14 sinais comportamentais (SENTINEL)<br/>• Tendência histórica de 12 meses<br/>• Variações nos 7 eixos de risco<br/><br/>Resultado: score projetado de <b style="color:${sColor(s.scorePred)}">${s.scorePred}/100</b> com confiança de <b>${s.conf}%</b>. Delta: ${s.scorePred-s.scoreAtual>0?'▲+':'▼'}${Math.abs(s.scorePred-s.scoreAtual)} pts em 6 meses.`,
+  'quebrar':(s)=>`O <b>Supplier Collapse Detector</b> calcula a probabilidade de colapso operacional em 6 meses. Para <b>${s.name}</b>: <b style="color:${s.collapse>50?'#FF4D5E':s.collapse>25?'#FF8C42':'#2ED9B8'}">${s.collapse}%</b>.<br/><br/>${s.collapse>50?'⚠ Probabilidade ALTA de colapso. Plano de contingência de fornecimento deve ser ativado imediatamente.':s.collapse>25?'Probabilidade MODERADA. Monitoramento semanal recomendado.':'Probabilidade BAIXA. Nenhuma ação urgente necessária.'}`,
+  'historico':(s)=>`O histórico de conformidade de <b>${s.name}</b> nos últimos 12 meses mostra score variando entre <b>${Math.min(...s.trend)}</b> e <b>${Math.max(...s.trend)}</b>. A tendência é de ${s.trend[11]<s.trend[0]?'<b style="color:#FF8C42">DEGRADAÇÃO ▼</b>':'<b style="color:#2ED9B8">ESTABILIDADE ▲</b>'}. Corporate Continuity Index atual: <b>${s.cci}/100</b>.`,
+  'renovar':(s)=>s.scoreAtual>=75?`Com score ${s.scoreAtual}/100, <b>a renovação é viável</b> mas requer condições específicas: ${s.scoreAtual>=85?'renovação automática aprovada.':'inclusão de cláusulas de rescisão reforçadas e monitoramento trimestral.'}`:`Com score ${s.scoreAtual}/100 (${sLabel(s.scoreAtual)}) e projeção de ${s.scorePred}/100, <b style="color:#FF4D5E">a renovação não é recomendada</b> sem plano de regularização formal e garantias contratuais adicionais.`,
+};
+
+function askQuestion(q){
+  addChat('user',q);
+  document.getElementById('chatIn').value='';
+  setTimeout(()=>{
+    const s=curSup||SC.techsol;
+    const ql=q.toLowerCase();
+    let ans='';
+    if(ql.includes('segur')||ql.includes('contratar')) ans=AI_QA.seguro(s);
+    else if(ql.includes('risco')) ans=AI_QA.risco(s);
+    else if(ql.includes('agora')||ql.includes('fazer')) ans=AI_QA.agora(s);
+    else if(ql.includes('preditiv')||ql.includes('futuro')||ql.includes('explique')) ans=AI_QA.preditivo(s);
+    else if(ql.includes('quebrar')||ql.includes('colapso')) ans=AI_QA.quebrar(s);
+    else if(ql.includes('histori')||ql.includes('histórico')) ans=AI_QA.historico(s);
+    else if(ql.includes('renov')) ans=AI_QA.renovar(s);
+    else ans=`Para <b>${s.name}</b>: ${s.narrative}`;
+    addChat('ai',ans);
+  },600);
+}
+
+function sendChat(){
+  const v=document.getElementById('chatIn').value.trim();
+  if(!v) return;
+  askQuestion(v);
+  document.getElementById('chatIn').value='';
+}
+
+function addChat(role,msg){
+  const chatBox=document.getElementById('chatBox');
+  const d=document.createElement('div');
+  d.className='chat-msg';
+  d.style.cssText=`display:flex;gap:8px;align-items:flex-start;${role==='user'?'flex-direction:row-reverse;':''}`;
+  const ico=role==='ai'?'🤖':'👤';
+  d.innerHTML=`
+    <div style="width:28px;height:28px;border-radius:50%;background:${role==='ai'?'rgba(160,107,255,.2)':'rgba(255,61,127,.15)'};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">${ico}</div>
+    <div style="max-width:80%;padding:10px 13px;border-radius:${role==='ai'?'4px 12px 12px 12px':'12px 4px 12px 12px'};background:${role==='ai'?'var(--p2)':'rgba(255,61,127,.12)'};border:1px solid ${role==='ai'?'var(--bd)':'rgba(255,61,127,.2)'};font-size:12.5px;line-height:1.65;color:${role==='ai'?'#C5D0E8':'#E8D0E0'};">${msg}</div>`;
+  chatBox.appendChild(d);
+  chatBox.scrollTop=chatBox.scrollHeight;
+}
+
+/* ═══════════════ TAB SWITCHER ═══════════════ */
+function switchTab(i){
+  for(let j=0;j<5;j++){
+    document.getElementById('tp'+j).style.display=j===i?'block':'none';
+    document.getElementById('tb'+j).classList.toggle('act',j===i);
+  }
+  curTab=i;
+}
+
+/* ═══════════════ WHAT-IF ═══════════════ */
+function initWI(){
+  const s=curSup||SC.techsol;
+  wiBase=s.scoreAtual;
+  document.getElementById('wiName').textContent=s.name;
+  document.getElementById('wiBase').textContent=s.scoreAtual;
+
+  const wrap=document.getElementById('wiScenarios');
+  wrap.innerHTML=WI_SCENARIOS.map((sc,idx)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 0;${idx<WI_SCENARIOS.length-1?'border-bottom:1px solid var(--bd)':''};">
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;${!sc.neg?'color:#2ED9B8':''}">${sc.label}</div>
+        <div style="font-size:11.5px;color:var(--ft);margin-top:2px;">${sc.sub}</div>
+        <div style="font-size:11px;color:${sc.neg?'#FF8C42':'#2ED9B8'};margin-top:3px;">Impacto: ${sc.impact>0?'+':''}${sc.impact} pts (eixo ${sc.axis})</div>
+      </div>
+      <label class="tog-wrap">
+        <input type="checkbox" id="${sc.id}" onchange="calcWI()"/>
+        <span class="tog-sl"></span>
+      </label>
+    </div>`).join('');
+
+  dChart('wiRing');
+  buildRing('wiRing',s.scoreAtual,sColor(s.scoreAtual),150);
+  document.getElementById('wiNum').textContent=s.scoreAtual;
+  document.getElementById('wiNum').style.color=sColor(s.scoreAtual);
+  document.getElementById('wiDelta').textContent='Sem alteração';
+  document.getElementById('wiDelta').style.color='var(--ft)';
+  document.getElementById('wiLvl').textContent=sLabel(s.scoreAtual);
+  document.getElementById('wiLvl').className='badge '+sBadge(s.scoreAtual);
+  calcWI();
+}
+
+function calcWI(){
+  const s=curSup||SC.techsol;
+  let score=wiBase;
+  let axes={...s.axes};
+  WI_SCENARIOS.forEach(sc=>{
+    const el=document.getElementById(sc.id);
+    if(el&&el.checked){
+      score+=sc.impact;
+      if(axes[sc.axis]!==undefined) axes[sc.axis]=Math.max(0,Math.min(100,axes[sc.axis]+sc.impact));
+    }
+  });
+  score=Math.max(0,Math.min(100,score));
+  dChart('wiRing');
+  buildRing('wiRing',score,sColor(score),150);
+  document.getElementById('wiNum').textContent=score;
+  document.getElementById('wiNum').style.color=sColor(score);
+  const d=score-wiBase;
+  const dEl=document.getElementById('wiDelta');
+  dEl.textContent=d===0?'Sem alteração':(d>0?'▲ +':'▼ ')+Math.abs(d)+' pts';
+  dEl.style.color=d>0?'#2ED9B8':d<0?'#FF4D5E':'var(--ft)';
+  const lEl=document.getElementById('wiLvl');
+  lEl.textContent=sLabel(score); lEl.className='badge '+sBadge(score);
+
+  document.getElementById('wiAxImpact').innerHTML=Object.entries(axes).map(([ax,v])=>{
+    const orig=s.axes[ax]; const diff=v-orig; const c=sColor(v);
+    return `<div style="display:flex;align-items:center;gap:7px;">
+      <div style="flex:0 0 80px;font-size:11.5px;color:var(--dm);overflow:hidden;white-space:nowrap;">${ax}</div>
+      <div style="flex:1;height:5px;background:#1A2B42;border-radius:99px;overflow:hidden;"><div style="height:100%;background:${c};border-radius:99px;width:${v}%;transition:width .4s;"></div></div>
+      <div class="mn" style="font-size:10.5px;font-weight:700;color:${c};width:24px;text-align:right;">${v}</div>
+      ${diff!==0?`<div class="mn" style="font-size:10px;color:${diff>0?'#2ED9B8':'#FF4D5E'};width:22px;">${diff>0?'+':''}${diff}</div>`:'<div style="width:22px;"></div>'}
+    </div>`;
+  }).join('');
+
+  const alertEl=document.getElementById('wiAlert');
+  if(score<45){
+    alertEl.style.display='block';
+    document.getElementById('wiAlertTxt').textContent=`Score ${score}/100 (Crítico): protocolo de bloqueio seria ativado automaticamente. Contratos suspensos e fornecedor alternativo acionado.`;
+  } else if(score<65){
+    alertEl.style.display='block';
+    document.getElementById('wiAlertTxt').textContent=`Score ${score}/100 (Alto Risco): revisão contratual obrigatória e monitoramento semanal. Novos volumes suspensos.`;
+  } else {
+    alertEl.style.display='none';
+  }
+}
+
+/* ═══════════════ RANKING ═══════════════ */
+function renderRanking(){
+  const cols=['#','Fornecedor','Score Atual','Score Futuro','Δ Score','Risco','Decisão IA'];
+  document.getElementById('rankHead').innerHTML=cols.map(c=>`<th style="text-align:${c==='Fornecedor'||c==='Decisão IA'?'left':'center'};padding:12px 16px;color:var(--ft);font-size:9.5px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">${c}</th>`).join('');
+  const riskMap={BAIXO:{badge:'bk-b',dec:'✓ Auto-aprovado'},MÉDIO:{badge:'bk-m',dec:'👁 Monitorar'},ALTO:{badge:'bk-a',dec:'⚠ Revisar'},CRÍTICO:{badge:'bk-c',dec:'🚫 Bloqueado'}};
+  document.getElementById('rankBody').innerHTML=RANK_DATA.map((r,i)=>{
+    const d=r.sp-r.sa; const rm=riskMap[r.risk]||riskMap.MÉDIO;
+    return `<tr style="border-bottom:1px solid rgba(26,43,66,.6);${r.hi?'background:rgba(255,61,127,.04);':''}" onmouseover="this.style.background='#0A1525'" onmouseout="this.style.background='${r.hi?'rgba(255,61,127,.04)':''}'">
+      <td style="padding:11px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ft);font-weight:700;">${String(i+1).padStart(2,'0')}</td>
+      <td style="padding:11px 16px;font-size:13px;font-weight:${r.hi?'700':'600'};color:${r.hi?'var(--pk)':'var(--tx)'};">${r.name}${r.hi?' ←':''}</td>
+      <td style="padding:11px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:${sColor(r.sa)};">${r.sa}</td>
+      <td style="padding:11px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:${sColor(r.sp)};">${r.sp}</td>
+      <td style="padding:11px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${d>=0?'#2ED9B8':'#FF4D5E'};">${d>=0?'▲+':'▼'}${Math.abs(d)}</td>
+      <td style="padding:11px 16px;text-align:center;"><span class="badge ${rm.badge}">${r.risk}</span></td>
+      <td style="padding:11px 16px;font-size:12px;color:var(--ft);">${rm.dec}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════ FULL ALERTS ═══════════════ */
+function renderFullFeed(){
+  const sevC={CRÍTICO:'#FF4D5E',ALTO:'#FF8C42',MÉDIO:'#FFB23D',INFO:'#4F9DFF'};
+  document.getElementById('fullFeed').innerHTML=FULL_ALERTS.map(a=>`<div style="display:flex;gap:10px;padding:12px 14px;background:${sevC[a.sev]}09;border:1px solid ${sevC[a.sev]}30;border-radius:10px;">
+    <div style="width:7px;height:7px;border-radius:50%;background:${sevC[a.sev]};flex-shrink:0;margin-top:4px;"></div>
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">
+        <span class="mn" style="font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:5px;background:${sevC[a.sev]}1A;color:${sevC[a.sev]};border:1px solid ${sevC[a.sev]}33;">${a.sev}</span>
+        <span class="mn" style="font-size:10.5px;color:var(--ft);">${a.sup}</span>
+        <span style="font-size:13px;font-weight:600;">${a.t}</span>
+      </div>
+      <div style="font-size:12px;color:#8897B5;line-height:1.5;margin-bottom:4px;">${a.d}</div>
+      <div style="font-size:11.5px;color:${sevC[a.sev]};font-weight:600;">→ ${a.a}</div>
+    </div>
+  </div>`).join('');
+}
+
+/* ═══════════════ DASHBOARD INIT ═══════════════ */
+function initDash(){
+  // Donut chart
+  dChart('distChart');
+  charts.distChart=new Chart(document.getElementById('distChart').getContext('2d'),{
+    type:'doughnut',
+    data:{datasets:[{data:[19215,14706,6535,391],backgroundColor:['#2ED9B8','#FFB23D','#FF8C42','#FF4D5E'],borderWidth:0,borderRadius:3,hoverOffset:4}]},
+    options:{cutout:'72%',responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}
+  });
+
+  // Trend
+  dChart('dashTrendChart');
+  const mo=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  charts.dashTrendChart=new Chart(document.getElementById('dashTrendChart').getContext('2d'),{
+    type:'line',
+    data:{labels:mo,datasets:[
+      {label:'Score Médio',data:[76,75,74,74,73,73,72,72,71,71.4,71.4,71.4],borderColor:'#4F9DFF',backgroundColor:'rgba(79,157,255,.08)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#4F9DFF'},
+      {label:'Projeção IA',data:[null,null,null,null,null,null,null,null,null,71.4,70,68.5],borderColor:'#A06BFF',borderDash:[5,4],backgroundColor:'rgba(160,107,255,.06)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#A06BFF'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8897B5',font:{size:11},usePointStyle:true}}},
+      scales:{x:{ticks:{color:'#4B5E7A',font:{size:9.5}},grid:{color:'#1A2B42'}},y:{min:60,max:82,ticks:{color:'#4B5E7A',font:{size:9.5}},grid:{color:'#1A2B42'}}}}
+  });
+
+  // Table
+  
+  document.getElementById('dashTable').innerHTML=DASH_ROWS.map(r=>{
+    const d=r.sp-r.sa;
+    const badgeClass=r.cci==='ESTÁVEL'?'bk-b':r.cci==='CRÍTICO'?'bk-c':r.cci.includes('ALTO')?'bk-a':'bk-m';
+    return `<tr style="border-bottom:1px solid rgba(26,43,66,.5);cursor:pointer;${r.hi?'background:rgba(255,61,127,.04);':''}" onclick="loadAndGo('${r.key||'techsol'}')" onmouseover="this.style.background='#0A1525'" onmouseout="this.style.background='${r.hi?'rgba(255,61,127,.04)':'transparent'}'">
+      <td style="padding:9px 8px;font-size:13px;font-weight:${r.hi?'700':'600'};color:${r.hi?'var(--pk)':'var(--tx)'};">${r.name}</td>
+      <td style="padding:9px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${sColor(r.sa)};">${r.sa}</td>
+      <td style="padding:9px 8px;text-align:center;"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${sColor(r.sp)};">${r.sp}</span> <span style="font-size:10px;color:var(--ft);">(${r.conf}%)</span></td>
+      <td style="padding:9px 8px;text-align:center;"><span class="badge ${badgeClass}">${r.cci}</span></td>
+      <td style="padding:9px 8px;font-size:12px;color:${sColor(r.sa)};">${r.rec}</td>
+    </tr>`;
+  }).join('');
+}
+
+function loadAndGo(key){
+  goPage('analyze');
+  setTimeout(()=>{
+    document.getElementById('anaInput').style.display='none';
+    const cnpjs={techsol:'11.444.777/0001-61',embraer:'07.689.002/0001-89'};
+    document.getElementById('cnpjIn').value=cnpjs[key]||cnpjs.techsol;
+    doAnalyze(key);
+  },50);
+}
+
+/* ═══════════════ HELPERS ═══════════════ */
+function sColor(s){return s>=80?'#2ED9B8':s>=65?'#FFB23D':s>=45?'#FF8C42':'#FF4D5E';}
+function sLabel(s){return s>=80?'BAIXO':s>=65?'MÉDIO':s>=45?'ALTO':'CRÍTICO';}
+function sBadge(s){return s>=80?'bk-b':s>=65?'bk-m':s>=45?'bk-a':'bk-c';}
+function dChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function formatDate(d){if(!d)return 'N/D';const[y,m,day]=d.split('-');const ms=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];return `${day||'01'}/${ms[parseInt(m)-1]||'?'}/${y}`;}
+
+function buildRing(id,val,color,size){
+  const ctx=document.getElementById(id).getContext('2d');
+  charts[id]=new Chart(ctx,{
+    type:'doughnut',
+    data:{datasets:[{data:[val,100-val],backgroundColor:[color,'#1A2B42'],borderWidth:0,borderRadius:3}]},
+    options:{cutout:'80%',responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}
+  });
+}
+
+/* ═══════════════ BOOT ═══════════════ */
+window.addEventListener('load',()=>{
+  initDash();
+  curSup=SC.techsol;
+});
+</script>
+</body>
+</html>
