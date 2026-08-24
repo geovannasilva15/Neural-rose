@@ -14,6 +14,9 @@
 
 </div>
 
+![Visão explicativa do projeto Neural Rose](assets/readme-project-overview.svg)
+
+
 ## Reconhecimento
 
 🏆 **2º lugar no Hackathon de IA WeHandle × PUC Campinas 2026.**
